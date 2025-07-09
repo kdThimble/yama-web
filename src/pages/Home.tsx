@@ -2,14 +2,26 @@ import React, { useState } from "react";
 import FileUploader from "../component/FileUploader";
 import { motion } from "framer-motion";
 import Accordion from "../component/Accordion";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [currentVideo, setCurrentVideo] = useState(
     "https://dr5mfoj5gztc2.cloudfront.net/Coach+Prime+Pregame.MP4"
   );
+  const [uploadStatus, setUploadStatus] = useState<string>("");
+  const [showAlert, setShowAlert] = useState<boolean>(false);
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
+
+  // Handle upload status changes from FileUploader
+  const handleUploadStatusChange = (status: string) => {
+    setUploadStatus(status);
+    setShowAlert(true);
+    if (status.includes("successfully") || status.includes("Failed")) {
+      setTimeout(() => setShowAlert(false), 5000);
+    }
+  };
 
   const creators = [
     {
@@ -70,7 +82,7 @@ const Home = () => {
             Yama
           </div>
           <nav className="flex flex-wrap justify-center items-center gap-3 sm:gap-6 lg:gap-8">
-            {["Home", "Upload", "Explore", "Profile"].map((item) => (
+            {["Home", "Upload", "Explore"].map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
@@ -210,15 +222,62 @@ const Home = () => {
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-8 sm:mb-10 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-teal-400">
             Upload Your Video
           </h2>
+          {/* Alert for upload status */}
+          {showAlert && uploadStatus && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className={`mb-6 px-6 py-3 rounded-lg text-white text-base font-semibold shadow-lg z-[1000] max-w-md mx-auto text-center
+                ${
+                  uploadStatus.includes("successfully")
+                    ? "bg-green-600"
+                    : uploadStatus.includes("Uploading")
+                    ? "bg-blue-600"
+                    : "bg-red-600"
+                }`}
+            >
+              {uploadStatus}
+            </motion.div>
+          )}
           <div className="w-full max-w-lg lg:max-w-2xl mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className={`p-6   backdrop-blur-sm`}
+              className={`p-6 backdrop-blur-sm`}
             >
-              <FileUploader isDark={darkMode} />
+              <FileUploader
+                isDark={darkMode}
+                onUploadStatusChange={handleUploadStatusChange}
+              />
             </motion.div>
+            {/* Success/Error Message */}
+            {uploadStatus &&
+              (uploadStatus.includes("successfully") ||
+                uploadStatus.includes("Failed")) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className={`text-center text-sm font-medium mt-6 ${
+                    darkMode ? "text-teal-200" : "text-gray-700"
+                  }`}
+                >
+                  {uploadStatus.includes("successfully") ? (
+                    <p>
+                      Your video was uploaded! Our team will review it for
+                      quality and then share it with Young Athletes everywhere!
+                      Thank you for contributing to YAMA!
+                    </p>
+                  ) : (
+                    <p>
+                      Your video could not be uploaded. Please check your file
+                      and try again.
+                    </p>
+                  )}
+                </motion.div>
+              )}
           </div>
         </section>
       </motion.div>
@@ -251,15 +310,17 @@ const Home = () => {
                 darkMode ? "bg-gray-800/80" : "bg-white/80"
               } backdrop-blur-sm`}
             >
-              <video
-                className="w-full rounded-lg mb-4 shadow-md"
-                controls
-                src={currentVideo}
-                poster="https://via.placeholder.com/800x450?text=Video+Thumbnail"
-              >
-                Your browser does not support the video tag.
-              </video>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[450px]">
+                <video
+                  className="w-full h-full rounded-lg mb-4 shadow-md object-contain"
+                  controls
+                  src={currentVideo}
+                  poster="https://via.placeholder.com/800x450?text=Video+Thumbnail"
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-5">
                 {videoSources.map((video) => (
                   <motion.button
                     key={video.id}
@@ -291,13 +352,13 @@ const Home = () => {
           darkMode
             ? "bg-gradient-to-br from-gray-800 to-purple-900"
             : "bg-gradient-to-br from-purple-50 to-teal-50"
-        } w-screen  mx-auto`}
+        } w-screen mx-auto`}
       >
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-8 sm:mb-10 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-teal-400">
           More about Yama Community
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-3xl lg:max-w-4xl mx-auto px-4">
-          {creators.map((creator) => (
+          {/* {creators.map((creator) => (
             <motion.div
               key={creator.id}
               initial={{ opacity: 0, y: 10 }}
@@ -324,7 +385,51 @@ const Home = () => {
                 </p>
               </div>
             </motion.div>
-          ))}
+          ))} */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.3 }}
+            className={`col-span-full p-8 rounded-xl shadow-md flex flex-col items-center justify-center gap-4 ${
+              darkMode ? "bg-gray-700 text-teal-200" : "bg-white text-gray-900"
+            }`}
+          >
+            <h3 className="text-xl sm:text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-teal-400">
+              Contact Us
+            </h3>
+            <p className={darkMode ? "text-teal-300" : "text-gray-700"}>
+              Have questions, want to collaborate, or need support? Reach out to
+              us!
+            </p>
+            <a
+              href="mailto:colleborate@maize-lab.com"
+              className={`inline-flex items-center gap-2 px-5 py-2 rounded-lg font-semibold shadow hover:shadow-lg transition-all duration-200
+                ${
+                  darkMode
+                    ? "bg-purple-600 text-white hover:bg-purple-500"
+                    : "bg-purple-100 text-purple-700 hover:bg-purple-200"
+                }`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 12l-4-4-4 4m8 0v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6m16-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v4"
+                />
+              </svg>
+              colleborate@maize-lab.com
+            </a>
+          </motion.div>
         </div>
       </section>
 
@@ -334,13 +439,13 @@ const Home = () => {
           darkMode
             ? "bg-gradient-to-br from-gray-800 to-purple-900 text-teal-200"
             : "bg-gradient-to-br from-purple-50 to-teal-50 text-gray-800"
-        } text-center w-screen  mx-auto`}
+        } text-center w-screen mx-auto`}
       >
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-6">
-          {["About", "Terms", "Privacy", "Contact"].map((item) => (
+          {["About", "Terms", "Privacy-policy"].map((item) => (
             <a
               key={item}
-              href={`#${item.toLowerCase()}`}
+              href={`/${item.toLowerCase()}`}
               className={`text-sm sm:text-base font-medium hover:text-purple-400 transition-colors ${
                 darkMode ? "text-teal-200" : "text-gray-800"
               }`}

@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
-import YAMAAppUI from './pages/YamaUI'
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import About from './pages/About';
+import Terms from './pages/Terms';
+
 
 function App() {
 
@@ -13,6 +14,9 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/terms" element={<Terms />} />
       </Routes>
     </>
   );
